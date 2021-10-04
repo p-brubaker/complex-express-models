@@ -4,10 +4,14 @@ import request from 'supertest';
 import app from '../lib/app.js';
 
 async function saveSpecies() {
-    const testSpecies = [{ speciesName: 'velociraptor' }];
+    const testSpecies = [
+        { speciesName: 'velociraptor' },
+        { speciesName: 'cow' },
+    ];
     return Promise.all(
         testSpecies.map(async (species) => {
-            return request(app).post('/api/species').send(species);
+            const res = await request(app).post('/api/species').send(species);
+            return res.body;
         })
     );
 }
@@ -19,10 +23,24 @@ describe('demo routes', () => {
 
     it('should add a new species to the species table', async () => {
         const res = await saveSpecies();
-        expect(res[0].body).toEqual({
+        expect(res[0]).toEqual({
             id: '1',
             speciesName: 'velociraptor',
         });
+    });
+
+    it('should get all the species', async () => {
+        const res = await saveSpecies();
+        expect(res).toEqual(
+            {
+                id: '1',
+                speciesName: 'velociraptor',
+            },
+            {
+                id: '2',
+                speciesName: 'cow',
+            }
+        );
     });
 
     afterAll(() => {
