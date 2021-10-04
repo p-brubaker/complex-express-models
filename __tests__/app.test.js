@@ -66,8 +66,9 @@ describe('demo routes', () => {
     });
 
     it('should get an animal by id', async () => {
+        await saveSpecies();
         await saveAnimals();
-        const res = await request(app).post('/api/animals');
+        const res = await request(app).get('/api/animals/1');
         expect(res.body).toEqual({
             animalName: 'Vinny',
             animal_id: '1',
