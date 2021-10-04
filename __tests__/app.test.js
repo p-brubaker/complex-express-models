@@ -76,6 +76,28 @@ describe('demo routes', () => {
         });
     });
 
+    it('should get all animals and include their species', async () => {
+        await saveSpecies();
+        await saveAnimals();
+        const res = await request(app).get('/api/animals');
+        expect(res.body).toEqual(
+            expect.arrayContaining([
+                {
+                    animalName: 'Vinny',
+                    animal_id: '1',
+                    speciesId: '1',
+                    species: 'velociraptor',
+                },
+                {
+                    animalName: 'Larry',
+                    animal_id: '2',
+                    speciesId: '2',
+                    species: 'cow',
+                },
+            ])
+        );
+    });
+
     afterAll(() => {
         pool.end();
     });
