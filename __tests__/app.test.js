@@ -30,7 +30,8 @@ async function saveAnimals() {
 }
 
 describe('demo routes', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
+        console.log(await saveSpecies());
         return setup(pool);
     });
 
@@ -59,10 +60,12 @@ describe('demo routes', () => {
     it('should add a new Animal', async () => {
         await saveSpecies();
         const res = await saveAnimals();
-        expect(res).toEqual([
-            { animalName: 'Vinny', animal_id: '1', speciesId: '1' },
-            { animalName: 'Larry', animal_id: '2', speciesId: '2' },
-        ]);
+        expect(res).toEqual(
+            expect.arrayContaining([
+                { animalName: 'Vinny', animal_id: '1', speciesId: '1' },
+                { animalName: 'Larry', animal_id: '2', speciesId: '2' },
+            ])
+        );
     });
 
     it('should get an animal by id', async () => {
@@ -70,9 +73,9 @@ describe('demo routes', () => {
         await saveAnimals();
         const res = await request(app).get('/api/animals/1');
         expect(res.body).toEqual({
-            animalName: 'Vinny',
-            animal_id: '1',
-            speciesId: '1',
+            animalName: expect.any(String),
+            animal_id: expect.any(String),
+            speciesId: expect.any(String),
         });
     });
 
@@ -96,6 +99,19 @@ describe('demo routes', () => {
                 },
             ])
         );
+    });
+
+    it('should update an animal', async () => {
+        const objToUpdate = {
+            animalName: 'Larry',
+            speciesId: '1',
+        };
+        await saveSpecies();
+        await saveAnimals();
+        const res = await request(app)
+            .patch('/api/animals/2')
+            .send(objToUpdate);
+        expect(res.body).toEqual({ ...objToUpdate, animal_id: '2' });
     });
 
     afterAll(() => {
