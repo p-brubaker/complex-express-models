@@ -16,13 +16,17 @@ async function saveSpecies() {
     );
 }
 
-async function saveAnimals() {
-    const testAnimals = [
-        { animalName: 'Vinny', speciesId: '1' },
-        { animalName: 'Larry', speciesId: '2' },
-    ];
+const testAnimals = [
+    { animalName: 'Vinny', speciesId: '1' },
+    { animalName: 'Larry', speciesId: '2' },
+    { animalName: 'Lucy', speciesId: '1' },
+    { animalName: 'Oleg', speciesId: '1' },
+    { animalName: 'Bob', speciesId: '2' },
+];
+
+async function saveAnimals(arr) {
     return Promise.all(
-        testAnimals.map(async (animal) => {
+        arr.map(async (animal) => {
             const res = await request(app).post('/api/animals').send(animal);
             return res.body;
         })
@@ -60,7 +64,7 @@ describe('demo routes', () => {
 
     it('should add a new Animal', async () => {
         await saveSpecies();
-        const res = await saveAnimals();
+        const res = await saveAnimals(testAnimals.slice(0, 2));
         expect(res).toEqual(
             expect.arrayContaining([
                 { animalName: 'Vinny', animal_id: '1', speciesId: '1' },
@@ -71,7 +75,7 @@ describe('demo routes', () => {
 
     it('should get an animal by id', async () => {
         await saveSpecies();
-        await saveAnimals();
+        await saveAnimals(testAnimals.slice(0, 2));
         const res = await request(app).get('/api/animals/1');
         expect(res.body).toEqual({
             animalName: expect.any(String),
@@ -82,7 +86,7 @@ describe('demo routes', () => {
 
     it('should get all animals and include their species', async () => {
         await saveSpecies();
-        await saveAnimals();
+        await saveAnimals(testAnimals.slice(0, 2));
         const res = await request(app).get('/api/animals');
         expect(res.body).toEqual(
             expect.arrayContaining([
@@ -108,7 +112,7 @@ describe('demo routes', () => {
             speciesId: '1',
         };
         await saveSpecies();
-        await saveAnimals();
+        await saveAnimals(testAnimals.slice(0, 2));
         const res = await request(app)
             .patch('/api/animals/2')
             .send(objToUpdate);
@@ -117,10 +121,30 @@ describe('demo routes', () => {
 
     it('should delete an animal', async () => {
         await saveSpecies();
-        await saveAnimals();
+        await saveAnimals(testAnimals.slice(0, 2));
         await request(app).delete('/api/animals/2');
         const res = await request(app).get('/api/animals');
         expect(res.body.length).toEqual(1);
+    });
+
+    it('should get a count of Animals by Species', async () => {
+        await saveSpecies();
+        await saveAnimals(testAnimals);
+        const res = await request(app).get('/api/species/count');
+        expect(res.body).toEqual(
+            expect.arrayContaining([
+                {
+                    species_id: expect.any(String),
+                    speciesName: 'cow',
+                    count: '2',
+                },
+                {
+                    species_id: expect.any(String),
+                    speciesName: 'velociraptor',
+                    count: '3',
+                },
+            ])
+        );
     });
 
     afterAll(() => {
