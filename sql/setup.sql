@@ -3,7 +3,8 @@ DROP TABLE IF EXISTS species CASCADE;
 
 CREATE TABLE species (
     species_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    species_name TEXT
+    species_name TEXT,
+    extinct BOOL
 );
 CREATE TABLE animals (
     animal_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

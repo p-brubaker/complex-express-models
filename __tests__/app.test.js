@@ -5,8 +5,8 @@ import app from '../lib/app.js';
 
 async function saveSpecies() {
     const testSpecies = [
-        { speciesName: 'velociraptor' },
-        { speciesName: 'cow' },
+        { speciesName: 'velociraptor', extinct: false },
+        { speciesName: 'cow', extinct: false },
     ];
     return Promise.all(
         testSpecies.map(async (species) => {
@@ -43,6 +43,7 @@ describe('demo routes', () => {
         expect(res[0]).toEqual({
             species_id: '1',
             speciesName: 'velociraptor',
+            extinct: false,
         });
     });
 
@@ -53,10 +54,12 @@ describe('demo routes', () => {
                 {
                     species_id: '1',
                     speciesName: 'velociraptor',
+                    extinct: false,
                 },
                 {
                     species_id: '2',
                     speciesName: 'cow',
+                    extinct: false,
                 },
             ])
         );
@@ -144,6 +147,20 @@ describe('demo routes', () => {
                     count: '3',
                 },
             ])
+        );
+    });
+
+    it('should set a species to extinct', async () => {
+        await saveSpecies();
+        const res = await request(app)
+            .patch('/api/species/extinct/2')
+            .send({ extinct: true });
+        expect(res.body).toEqual(
+            expect.objectContaining({
+                species_id: expect.any(String),
+                speciesName: expect.any(String),
+                extinct: true,
+            })
         );
     });
 
