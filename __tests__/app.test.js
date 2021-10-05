@@ -164,6 +164,20 @@ describe('demo routes', () => {
         );
     });
 
+    it('should get all species that are not extinct', async () => {
+        await saveSpecies();
+        await request(app)
+            .patch('/api/species/extinct/2')
+            .send({ extinct: true });
+        const res = await request(app).get('/api/species/living');
+        expect(res.body).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ extinct: false }),
+            ])
+        );
+        expect(res.body.length).toEqual(1);
+    });
+
     afterAll(() => {
         pool.end();
     });
